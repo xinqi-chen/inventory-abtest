@@ -1,0 +1,51 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local environments
+.env
+.venv/
+venv/
+env/
+
+# Logs
+*.log
+slurm_logs/
+**/results/logs/
+
+# Generated experiment outputs
+controlled_stochastic_simulations/outputs_reproduced/
+trace_driven_freshretailnet/abtest/abtest_outputs/
+trace_driven_freshretailnet/outputs/
+trace_driven_freshretailnet/**/results/
+trace_driven_freshretailnet/**/checkpoints/
+trace_driven_freshretailnet/**/lightning_logs/
+
+# Local FreshRetailNet data and generated recovered-demand files
+trace_driven_freshretailnet/frn_50k_local_dataset*/
+trace_driven_freshretailnet/latent_demand_recovery/exp/demand/
+
+# Model artifacts and tensorboard outputs
+*.ckpt
+*.pt
+*.pth
+*.pypots
+events.out.tfevents*
+tensorboard/
+
+# Large/generated tabular artifacts
+*.parquet
+*.arrow
+*.h5
+*.pkl
+*.pickle

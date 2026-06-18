@@ -1,0 +1,10 @@
+name: inventory-abtest
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+      - -r controlled_stochastic_simulations/requirements.txt
+      - -r trace_driven_freshretailnet/requirements.txt
+
