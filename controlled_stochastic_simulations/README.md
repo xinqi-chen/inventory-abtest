@@ -1,6 +1,13 @@
 # Controlled Stochastic Simulation Reproduction
 
+See the [paper results](../README.md#results) for saved figures and summary CSVs.
+
 This folder contains the code needed to reproduce the final controlled stochastic simulation results used for the paper draft. It is separate from the trace-driven FreshRetailNet experiments.
+
+Scenario 1 corresponds to §5.1 / Fig. 2 (downward mean-bias reduction);
+Scenario 2 corresponds to §5.1 / Fig. 3 (forecast-error dispersion reduction).
+See the [paper-to-experiment map](../docs/experiment_design.md) and
+[reproduction guide](../docs/reproduction.md#controlled-experiments).
 
 ## Files
 
@@ -10,7 +17,7 @@ This folder contains the code needed to reproduce the final controlled stochasti
 - `run_final_experiments.sh`: one-command reproduction script for the final selected settings.
 - `requirements.txt`: minimal Python package list.
 
-The simulator uses the historical internal design name `BR`; figures and reports display it as `PR`.
+The simulator uses the historical internal design name `BR`; figures and reports display it as `PR`. This design independently randomizes each item–period cell.
 
 ## Final Settings
 

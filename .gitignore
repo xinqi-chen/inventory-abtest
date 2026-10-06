@@ -49,3 +49,6 @@ tensorboard/
 *.h5
 *.pkl
 *.pickle
+
+# Local planning notes (not part of the public artifact)
+/inventory_abtest_low_risk_improvements.md

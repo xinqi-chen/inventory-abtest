@@ -1,6 +1,14 @@
 # Trace-Driven FreshRetailNet Experiments
 
+See the [paper results](../README.md#results) for saved figures and summary CSVs.
+
 This folder contains the FreshRetailNet-50K trace-driven numerical module for inventory A/B testing under shared capacity constraints.
+
+The paper's Fig. 4 uses the S1 DLinear pair; Fig. 5 uses S2 with Weekday
+(Naive) control and TFT treatment. Both enable stockout substitution.
+See the [paper-to-experiment map](../docs/experiment_design.md) and
+[reproduction guide](../docs/reproduction.md#trace-driven-experiments) for
+the paper configurations and the full batch workflow.
 
 Latent demand recovery and several baseline forecasting components are adapted
 from the FreshRetailNet-50K baseline repository
@@ -60,7 +68,11 @@ abtest/ # Inventory simulation and A/B testing
 
 ## Environment Setup
 
-We recommend Conda + Python 3.8:
+The declared environment uses Python 3.8. The full TFT workflow requires a
+CUDA-enabled NVIDIA GPU; CPU fallback is not implemented in its current training
+and prediction entry points. See the [validation notes](../docs/reproduction.md#validation-scope-and-known-differences) before treating a run as an exact reproduction.
+
+Environment setup:
 
 ```bash
 conda create --name py3.8_frn python=3.8
@@ -78,7 +90,7 @@ The pipeline consists of three stages:
 2. Demand forecasting using recovered and/or raw data
 3. Inventory A/B testing under shared capacity constraints
 
-Each stage can be run independently.
+Each stage can be rerun once its required inputs from preceding stages exist.
 
 
 ### Latent Demand Recovery
@@ -88,6 +100,7 @@ We recover latent (uncensored) demand from censored sales using imputation model
 ```bash
 cd latent_demand_recovery/exp
 python app.py --model TimesNet
+cd ../..
 ```
 This produces recovered demand fields (e.g., sale_amount_pred) used as ground truth in trace-driven simulation.
 
@@ -113,10 +126,11 @@ LightGBM: Gradient-boosted decision trees trained on lagged demand features and 
 > - Reference Code link:https://github.com/microsoft/LightGBM
 
 ```bash
-cd demand_forecasting/ClassicalModels
-python run_forecasting.py --recovery_model_name TimesNet
-cd ../..
+python demand_forecasting/ClassicalModels/run_forecasting.py --recovery_model_name TimesNet
 ```
+
+Run this command from `trace_driven_freshretailnet/`; it writes both Weekday
+and LightGBM predictions and metrics to `demand_forecasting/ClassicalModels/results/`.
 
 3. DLinear
 DLinear: A linear forecasting model with trend–seasonality decomposition.
@@ -150,6 +164,26 @@ They simulate myopic inventory allocation under a shared capacity constraint and
 - IR: Item-level randomization
 - PR: Pairwise randomization
 
+The full S1 runner requires SSA, DLinear and TFT outputs; the full S2 runner
+requires Weekday, LightGBM, SSA and TFT outputs. Complete the forecasting steps
+above before running either batch. For only Figs. 4–5, use the direct commands
+in the [reproduction guide](../docs/reproduction.md#3-run-the-papers-trace-driven-configurations).
+
+The paper reports only the substitution-enabled DLinear pair in S1 and
+Weekday (Naive) → TFT in S2. The batch runners support a broader set:
+
+| Scenario | Control inputs → treatment inputs | Stockout substitution |
+| --- | --- | --- |
+| S1 | Raw → TimesNet-recovered inputs, using SSA, DLinear or TFT | Off or on |
+| S2 | Weekday control → LightGBM, SSA or TFT treatment, all using TimesNet-recovered inputs | Off or on |
+
+Each runner evaluates tight, medium and loose capacity with SW, IR and PR.
+Use `STOCKOUT_SUBSTITUTE=0` or `1` with the commands below. The simulator CLI
+also accepts control/treatment recovery and forecast selections; the selected
+models need their corresponding prediction and training-metric files. These
+additional configurations are supported by the code, while `results/` contains
+only the figures and CSVs displayed in the paper.
+
 #### Scenario 1
 
 Without stockout substitution:
@@ -176,7 +210,8 @@ STOCKOUT_SUBSTITUTE=1 bash abtest/run_abtest_s2.sh
 
 ## Export LaTeX Tables and Figures (Aggregation / Post-processing)
 
-After running A/B tests, outputs are written under a per-seed directory:
+Running A/B tests writes full outputs locally to the following per-seed directory.
+This directory is ignored by Git and is not included in the repository:
 
 - `./abtest/abtest_outputs/251221/<MODE>_Dtrue_..._sub_<0|1>_cap_<CAP>/...`
 
@@ -198,21 +233,21 @@ and exports LaTeX-ready tables and figures into a clean output folder:
 
 No substitution:
 ```bash
-python scripts/export_abtest_latex.py --seed 251221 --mode S1 --stockout_substitute 0  
+python scripts/export_abtest_latex.py --seed 251221 --mode S1 --sub 0
 ```
 With substitution:
 ```bash
-python scripts/export_abtest_latex.py --seed 251221 --mode S1 --stockout_substitute 1  
+python scripts/export_abtest_latex.py --seed 251221 --mode S1 --sub 1
 ```
 
-### Scenario 2 (Variance reduction)
+### Scenario 2 (Forecast-error dispersion reduction)
 No substitution:
 ```bash
-python scripts/export_abtest_latex.py --seed 251221 --mode S2 --stockout_substitute 0  
+python scripts/export_abtest_latex.py --seed 251221 --mode S2 --sub 0
 ```
 With substitution:
 ```bash
-python scripts/export_abtest_latex.py --seed 251221 --mode S2 --stockout_substitute 1  
+python scripts/export_abtest_latex.py --seed 251221 --mode S2 --sub 1
 ```
 
 The exported .tex files are placed under .../tex/, and the corresponding PNGs

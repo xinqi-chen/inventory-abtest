@@ -1,8 +1,15 @@
 cff-version: 1.2.0
 message: "If you use this code, please cite the accompanying paper."
-title: "Inventory A/B Testing under Forecast-Driven Capacity Allocation"
+title: "Experimental Designs for Multi-Item Multi-Period Inventory Control — Experiment Code"
 type: software
 authors:
-  - name: "The Authors"
+  - given-names: "Xinqi"
+    family-names: "Chen"
+  - given-names: "Xingyu"
+    family-names: "Bai"
+  - given-names: "Zeyu"
+    family-names: "Zheng"
+  - given-names: "Nian"
+    family-names: "Si"
 license: "MIT AND Apache-2.0 AND BSD-3-Clause"
 date-released: 2026-06-18

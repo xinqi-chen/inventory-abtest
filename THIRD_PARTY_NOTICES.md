@@ -41,6 +41,23 @@ experiments:
 - Notes: the vendored/adapted PyPOTS components support the imputation models
   used for latent demand recovery.
 
+## PyTorch Forecasting (vendored TFT components)
+
+- Source: https://github.com/sktime/pytorch-forecasting
+- Upstream license: https://github.com/sktime/pytorch-forecasting/blob/main/LICENSE
+- License: MIT
+- License text: `third_party_licenses/MIT-PyTorch-Forecasting.txt`
+- Copyright: Copyright (c) 2020 - present, the pytorch-forecasting developers; Copyright (c) 2020 Jan Beitner
+- Used in: adapted time-series dataset and model components under `trace_driven_freshretailnet/demand_forecasting/TFT/data/` and `TFT/models/`.
+
+## DLinear / LTSF-Linear
+
+- Source: https://github.com/cure-lab/LTSF-Linear
+- Upstream license: https://github.com/cure-lab/LTSF-Linear/blob/main/LICENSE
+- License: Apache-2.0; the license terms are included in `third_party_licenses/Apache-2.0-FreshRetailNet.txt`.
+- Copyright: Copyright 2022 DLinear Authors. All rights reserved.
+- Used in: adapted forecasting components under `trace_driven_freshretailnet/demand_forecasting/DLinear/`.
+
 ## Additional Model References
 
 The trace-driven forecasting code also documents model-level references in

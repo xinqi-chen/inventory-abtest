@@ -1,106 +1,52 @@
 # Inventory A/B Testing Experiments
 
-This repository contains the numerical code for A/B testing of demand-forecasting policies under shared inventory capacity constraints.
+Code and saved results for [*Experimental Designs for Multi-Item Multi-Period Inventory Control*](paper/ABtestInventory_ec26.pdf).
 
-It includes two complementary experiment modules:
+We study how **shared capacity and inventory carryover bias A/B estimates of inventory-policy improvements**. Forecasting methods construct the treatment/control interventions; the target is the global treatment effect (GTE), the average reward under all-treatment minus all-control.
 
-- `controlled_stochastic_simulations/`: self-contained uniform-demand simulations used to verify the theory.
-- `trace_driven_freshretailnet/`: FreshRetailNet-50K trace-driven demand recovery, forecasting, and inventory A/B-test simulations.
+## Main Findings
 
-## Repository Layout
+We compare switchback (SW), item-level (IR), and independent item–period (PR) randomization in controlled simulations and FreshRetailNet-50K trace-driven experiments.
 
-```text
-controlled_stochastic_simulations/
-  run_controlled_stochastic.py
-  run_final_experiments.sh
-  plot_abtest_violins.py
-  assemble_final_outputs.py
+| Intervention | Main findings in the paper experiments |
+| --- | --- |
+| S1: reduce downward forecast bias | SW underestimates GTE; IR overestimates it under tight capacity. PR reduces IR's positive bias but can underestimate GTE. |
+| S2: reduce forecast-error dispersion | IR stays near GTE; SW and PR overestimate it through inventory carryover. |
 
-trace_driven_freshretailnet/
-  latent_demand_recovery/
-  demand_forecasting/
-  abtest/
-  scripts/
-```
+These are results for the paper's configurations, not guarantees for every forecast pair or capacity regime. See the [paper-to-experiment map](docs/experiment_design.md) for the theoretical conditions and experiment settings.
 
-Generated outputs, checkpoints, local dataset files, and cache files are ignored by Git. A fresh clone should download or generate data artifacts locally.
+## Results
 
-## Environment
+The following paper figures and original summary CSVs are included in `results/`; no experiment run is needed to view them. Code also supports substitution-disabled runs and additional forecast pairs, described in the [trace-driven README](trace_driven_freshretailnet/README.md#inventory-ab-tests).
 
-For a single environment covering both modules:
+| Paper result | Images | Original CSVs |
+| --- | --- | --- |
+| Fig. 2: controlled S1 | [tight](results/controlled/scenario1/figures/gte_violin_scenario1_tight_cf0.9_diff_in_means.png) / [medium](results/controlled/scenario1/figures/gte_violin_scenario1_medium_cf0.92_diff_in_means.png) / [loose](results/controlled/scenario1/figures/gte_violin_scenario1_loose_cf1.2_diff_in_means.png) | [summary](results/controlled/scenario1/summary_scenario1_full_grid.csv) |
+| Fig. 3: controlled S2 | [tight](results/controlled/scenario2/figures/gte_violin_scenario2_tight_cf0.85_diff_in_means.png) / [medium](results/controlled/scenario2/figures/gte_violin_scenario2_medium_cf1_diff_in_means.png) / [loose](results/controlled/scenario2/figures/gte_violin_scenario2_loose_cf1.1_diff_in_means.png) | [summary](results/controlled/scenario2/summary_scenario2_full_grid.csv) |
+| Fig. 4: FreshRetailNet S1 | [tight](results/freshretailnet/gte_violin_S1_Dtrue_TimesNet_C_raw_DLinear_T_TimesNet_DLinear_sub_1_cap_0.9.png) / [medium](results/freshretailnet/gte_violin_S1_Dtrue_TimesNet_C_raw_DLinear_T_TimesNet_DLinear_sub_1_cap_1.2.png) / [loose](results/freshretailnet/gte_violin_S1_Dtrue_TimesNet_C_raw_DLinear_T_TimesNet_DLinear_sub_1_cap_1.8.png) | [tight](results/freshretailnet/abtest_summary_S1_Dtrue_TimesNet_C_raw_DLinear_T_TimesNet_DLinear_sub_1_cap_0.9.csv) / [medium](results/freshretailnet/abtest_summary_S1_Dtrue_TimesNet_C_raw_DLinear_T_TimesNet_DLinear_sub_1_cap_1.2.csv) / [loose](results/freshretailnet/abtest_summary_S1_Dtrue_TimesNet_C_raw_DLinear_T_TimesNet_DLinear_sub_1_cap_1.8.csv) |
+| Fig. 5: FreshRetailNet S2 | [tight](results/freshretailnet/gte_violin_S2_Dtrue_TimesNet_C_TimesNet_Weekday_T_TimesNet_TFT_sub_1_cap_0.6.png) / [medium](results/freshretailnet/gte_violin_S2_Dtrue_TimesNet_C_TimesNet_Weekday_T_TimesNet_TFT_sub_1_cap_0.9.png) / [loose](results/freshretailnet/gte_violin_S2_Dtrue_TimesNet_C_TimesNet_Weekday_T_TimesNet_TFT_sub_1_cap_1.8.png) | [tight](results/freshretailnet/abtest_summary_S2_Dtrue_TimesNet_C_TimesNet_Weekday_T_TimesNet_TFT_sub_1_cap_0.6.csv) / [medium](results/freshretailnet/abtest_summary_S2_Dtrue_TimesNet_C_TimesNet_Weekday_T_TimesNet_TFT_sub_1_cap_0.9.csv) / [loose](results/freshretailnet/abtest_summary_S2_Dtrue_TimesNet_C_TimesNet_Weekday_T_TimesNet_TFT_sub_1_cap_1.8.csv) |
+
+Table 2 forecast metrics: S1 [treatment](results/freshretailnet/exp_summary_S1_GT.csv) / [control](results/freshretailnet/exp_summary_S1_GC.csv); S2 [treatment](results/freshretailnet/exp_summary_S2_GT.csv) / [control](results/freshretailnet/exp_summary_S2_GC.csv).
+
+Saved numerical estimates use difference in means; the theoretical analysis defines IPW. `BR` in controlled CSVs is the displayed `PR`; `Weekday` is the paper's Naive benchmark.
+
+## Reproduce
 
 ```bash
 conda env create -f environment.yml
 conda activate inventory-abtest
-```
-
-Alternatively, install dependencies per module:
-
-```bash
-python -m pip install -r controlled_stochastic_simulations/requirements.txt
-python -m pip install -r trace_driven_freshretailnet/requirements.txt
-```
-
-## Data
-
-The trace-driven experiments use FreshRetailNet-50K:
-
-https://huggingface.co/datasets/Dingdong-Inc/FreshRetailNet-50K
-
-The local dataset folder is not committed. Download and validate the pinned
-FreshRetailNet-50K snapshot with:
-
-```bash
-python trace_driven_freshretailnet/scripts/download_freshretailnet.py
-```
-
-This saves the dataset in the folder expected by the code:
-
-```text
-trace_driven_freshretailnet/frn_50k_local_dataset/
-```
-
-The Hugging Face download is about 115 MB compressed and the saved local Arrow
-dataset is about 2.5 GB.
-
-The trace-driven pipeline also generates recovered-demand and forecast-result files under ignored output directories.
-
-## Controlled Stochastic Simulations
-
-```bash
 cd controlled_stochastic_simulations
 bash run_final_experiments.sh
 ```
 
-See `controlled_stochastic_simulations/README.md` for settings and output locations.
+- [Controlled simulations](controlled_stochastic_simulations/README.md): self-contained, with no external dataset.
+- [Trace-driven experiments](docs/reproduction.md#trace-driven-experiments): download → demand recovery → forecasting → A/B tests → export. The current TFT workflow requires a CUDA GPU.
+- [Reproduction notes and validation scope](docs/reproduction.md#validation-scope-and-known-differences): saved paper outputs are verified; the full trace-driven pipeline has not been validated in a fresh environment.
 
-## Trace-Driven FreshRetailNet Experiments
+Only selected paper figures and CSVs are committed. Full experiment outputs, datasets, forecasts, checkpoints and logs are generated locally and ignored by Git.
 
-```bash
-cd trace_driven_freshretailnet
-```
+## Citation and License
 
-Run the trace-driven workflow in stages:
+Paper authors: Xinqi Chen, Xingyu Bai, Zeyu Zheng and Nian Si. Citation metadata: [CITATION.cff](CITATION.cff).
 
-```bash
-cd latent_demand_recovery/exp
-python app.py --model TimesNet
-
-cd ../../demand_forecasting/DLinear
-bash run_dlinear.sh --input-sources "raw,TimesNet"
-
-cd ../TFT
-bash run_tft.sh --input-sources "raw,TimesNet" --prediction-type deterministic
-
-cd ../../
-STOCKOUT_SUBSTITUTE=1 bash abtest/run_abtest_s1.sh
-STOCKOUT_SUBSTITUTE=1 bash abtest/run_abtest_s2.sh
-```
-
-See `trace_driven_freshretailnet/README.md` for the full workflow.
-
-## License and Third-party Code
-
-Original code in this repository is released under the MIT License. The
-trace-driven module includes components adapted from third-party projects; see
-`THIRD_PARTY_NOTICES.md` for source and license notices.
+Original code: [MIT](LICENSE). Adapted components retain their upstream licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
